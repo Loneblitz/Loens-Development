@@ -1,0 +1,11 @@
+"use client";
+import Link from "next/link";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+export default function Login(){
+ const [mode,setMode]=useState<"login"|"signup">("login");const [email,setEmail]=useState("");const [password,setPassword]=useState("");const [message,setMessage]=useState("");const [busy,setBusy]=useState(false);
+ const router=useRouter();const supabase=createClient();
+ async function submit(e:React.FormEvent){e.preventDefault();setBusy(true);setMessage("");const result=mode==="login"?await supabase.auth.signInWithPassword({email,password}):await supabase.auth.signUp({email,password,options:{emailRedirectTo:location.origin+"/auth/callback?next=/account"}});setBusy(false);if(result.error){setMessage(result.error.message);return;}if(mode==="signup"&&!result.data.session){setMessage("Account created. Check your email to confirm your address, then log in.");return;}const next= new URLSearchParams(window.location.search).get("next") || "/account";router.push(next.startsWith("/")?next:"/account");router.refresh();}
+ return <main className="section min-h-[75vh]"><div className="panel mx-auto max-w-md p-8"><h1 className="text-3xl font-black">{mode==="login"?"Welcome back":"Create your account"}</h1><p className="mb-7 mt-2 text-sm text-slate-400">Access your Lones Development customer account.</p><form onSubmit={submit} className="space-y-4"><label className="block text-sm">Email<input className="field mt-2" type="email" required value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com"/></label><label className="block text-sm">Password<input className="field mt-2" type="password" required minLength={6} value={password} onChange={e=>setPassword(e.target.value)} placeholder="At least 6 characters"/></label><button disabled={busy} className="btn btn-primary w-full">{busy?"Please wait…":mode==="login"?"Log in":"Create account"}</button></form>{message&&<p className="mt-4 text-sm text-sky-300">{message}</p>}<p className="mt-6 text-center text-sm text-slate-400">{mode==="login"?"New here?":"Already registered?"} <button className="font-semibold text-sky-300" onClick={()=>{setMode(mode==="login"?"signup":"login");setMessage("");}}>{mode==="login"?"Create an account":"Log in"}</button></p></div></main>;
+}

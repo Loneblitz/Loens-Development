@@ -1,0 +1,9 @@
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import { signOut } from "./signout";
+export default async function Account(){
+ const supabase=await createClient();const {data:{user}}=await supabase.auth.getUser();if(!user)redirect("/login");
+ const {data:purchases}=await supabase.from("purchases").select("id,product_name,amount_paid,currency,created_at,status").eq("user_id",user.id).order("created_at",{ascending:false});
+ return <main className="section min-h-[75vh]"><div className="container max-w-4xl"><div className="mb-8 flex flex-wrap items-center justify-between gap-4"><div><h1 className="text-3xl font-black">My Account</h1><p className="mt-2 text-sm text-slate-400">{user.email}</p></div><form action={signOut}><button className="btn btn-outline">Sign out</button></form></div><section className="panel p-6"><h2 className="mb-5 text-xl font-bold">Purchase history</h2>{!purchases?.length?<div className="py-8 text-center"><p className="text-slate-400">No purchases yet.</p><Link className="btn btn-primary mt-5" href="/store">Browse the store</Link></div>:<div className="space-y-3">{purchases.map(p=><div key={p.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-800 p-4"><div><b>{p.product_name}</b><p className="mt-1 text-xs text-slate-500">{new Date(p.created_at).toLocaleDateString()}</p></div><span className="text-sm text-sky-300">{(p.amount_paid/100).toLocaleString("en-US",{style:"currency",currency:p.currency.toUpperCase()})}</span></div>)}</div>}</section><p className="mt-4 text-xs text-slate-500">Purchased files are not automatically hosted by this starter. Add secure download links after uploading your product files to private storage.</p></div></main>;
+}

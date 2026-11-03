@@ -1,0 +1,2 @@
+import Link from "next/link";
+export function Footer(){return <footer className="border-t border-slate-800 bg-[#111827] py-9"><div className="container flex flex-col items-center justify-between gap-4 text-center text-xs text-slate-500 sm:flex-row sm:text-left"><b className="tracking-widest text-white">LONES DEVELOPMENT</b><span>© {new Date().getFullYear()} Lones Development. Not affiliated with Rockstar Games or Cfx.re.</span><div className="flex gap-4"><Link href="/terms">Terms</Link><Link href="/requests">Support</Link></div></div></footer>}
